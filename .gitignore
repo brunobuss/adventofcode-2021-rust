@@ -12,3 +12,6 @@
 # Executable/Debug files
 **/*.exe
 **/*.pdb
+
+# Input files, no need to replicate them in the repo.
+**/input.txt
