@@ -1,95 +1,114 @@
+use solver::CompositeSolution;
 use std::cmp::max;
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::{BufRead, BufReader};
 
-fn main() {
-    part_a();
-    part_b();
-}
+pub struct Day03Solver {}
 
-fn part_a() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
+impl Day03Solver {}
 
-    let mut bit_count: Vec<i32> = vec![0; 12];
-    let mut len = 0;
+impl super::Solver for Day03Solver {
+    fn solve_part_one(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        let reader = reader_provider();
 
-    for line in reader.lines() {
-        let line_content = line.expect("Unable to read line.");
-        let chars: Vec<char> = line_content.chars().collect();
+        let mut bit_count: Vec<i32> = vec![0; 12];
+        let mut len = 0;
 
-        if len == 0 {
-            len = chars.len();
-        }
+        for line in reader.lines() {
+            let line_content = match line {
+                Ok(l) => l,
+                Err(e) => return Err(e.to_string()),
+            };
+            let chars: Vec<char> = line_content.chars().collect();
 
-        for i in 0..len as usize {
-            match chars[i] {
-                '0' => bit_count[i] -= 1,
-                '1' => bit_count[i] += 1,
-                _ => (),
+            if len == 0 {
+                len = chars.len();
+            }
+
+            for i in 0..len as usize {
+                match chars[i] {
+                    '0' => bit_count[i] -= 1,
+                    '1' => bit_count[i] += 1,
+                    _ => (),
+                }
             }
         }
-    }
 
-    let mut gamma_rate = 0;
-    let mut epsilon_rate = 0;
+        let mut gamma_rate = 0;
+        let mut epsilon_rate = 0;
 
-    for i in 0..len as usize {
-        gamma_rate <<= 1;
-        epsilon_rate <<= 1;
-        if bit_count[i] > 0 {
-            // Most common bit = 1
-            gamma_rate += 1;
-        } else {
-            // Most common bit = 0
-            // (or both have the same count, since its not specified by the
-            //  problem statement, treat this as 0 for now)
-            epsilon_rate += 1;
-        }
-    }
-
-    println!(
-        "Part A solution. Gamma: {}. Epsilon: {}. Answer: {}.",
-        gamma_rate,
-        epsilon_rate,
-        gamma_rate * epsilon_rate
-    );
-}
-
-fn part_b() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
-
-    let mut nums: Vec<i32> = Vec::new();
-    let mut len = 0;
-
-    for line in reader.lines() {
-        let line_content = line.expect("Unable to read line.");
-        let bits: Vec<char> = line_content.chars().collect();
-
-        if len == 0 {
-            len = bits.len();
-        }
-
-        let mut number = 0;
         for i in 0..len as usize {
-            number <<= 1;
-            if bits[i] == '1' {
-                number += 1;
+            gamma_rate <<= 1;
+            epsilon_rate <<= 1;
+            if bit_count[i] > 0 {
+                // Most common bit = 1
+                gamma_rate += 1;
+            } else {
+                // Most common bit = 0
+                // (or both have the same count, since its not specified by the
+                //  problem statement, treat this as 0 for now)
+                epsilon_rate += 1;
             }
         }
-        nums.push(number);
+
+        let answer = gamma_rate * epsilon_rate;
+        Ok(answer.to_string())
     }
 
-    nums.sort();
-    let oxygen = find_in(&nums, true, 0, len - 1);
-    let scrubber = find_in(&nums, false, 0, len - 1);
-    println!(
-        "Part B solution. Oxygen Generator: {}. CO2 Scrubber: {}. Answer: {}.",
-        oxygen,
-        scrubber,
-        oxygen * scrubber
-    );
+    fn solve_part_two(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        let reader = reader_provider();
+
+        let mut nums: Vec<i32> = Vec::new();
+        let mut len = 0;
+
+        for line in reader.lines() {
+            let line_content = match line {
+                Ok(l) => l,
+                Err(e) => return Err(e.to_string()),
+            };
+            let bits: Vec<char> = line_content.chars().collect();
+
+            if len == 0 {
+                len = bits.len();
+            }
+
+            let mut number = 0;
+            for i in 0..len as usize {
+                number <<= 1;
+                if bits[i] == '1' {
+                    number += 1;
+                }
+            }
+            nums.push(number);
+        }
+
+        nums.sort();
+        let oxygen = find_in(&nums, true, 0, len - 1);
+        let scrubber = find_in(&nums, false, 0, len - 1);
+        let answer = oxygen * scrubber;
+        Ok(answer.to_string())
+    }
+
+    fn solve_both(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String> {
+        let part_one = match self.solve_part_one(reader_provider) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        let part_two = match self.solve_part_two(reader_provider) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        Ok(CompositeSolution(part_one, part_two))
+    }
 }
 
 fn find_in(v: &[i32], most_common: bool, cur: i32, bit_pos: usize) -> i32 {

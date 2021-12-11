@@ -1,68 +1,100 @@
+use solver::CompositeSolution;
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::{BufRead, BufReader};
 
-fn main() {
-    part_a();
-}
+pub struct Day04Solver {}
 
-fn part_a() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let mut reader = BufReader::new(file);
+impl super::Solver for Day04Solver {
+    fn solve_part_one(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.0),
+            Err(e) => Err(e),
+        }
+    }
 
-    let mut draws_line = String::new();
-    reader
-        .read_line(&mut draws_line)
-        .expect("Unable to read line.");
+    fn solve_part_two(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.1),
+            Err(e) => Err(e),
+        }
+    }
 
-    let mut current: Vec<Vec<u32>> = Vec::new();
-    let mut boards: Vec<BingoBoard> = Vec::new();
+    fn solve_both(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String> {
+        let mut reader = reader_provider();
 
-    for line in reader.lines() {
-        let line_content = line.expect("Unable to read line.");
-        if line_content.is_empty() {
-            if current.len() > 0 {
-                boards.push(BingoBoard::new(current));
-            }
-            current = Vec::new();
-            continue;
+        let mut draws_line = String::new();
+        match reader.read_line(&mut draws_line) {
+            Err(e) => return Err(e.to_string()),
+            _ => (),
         }
 
-        current.push(
-            line_content
-                .split_ascii_whitespace()
-                .map(|x| x.parse().unwrap())
-                .collect(),
-        );
-    }
-    if current.len() > 0 {
-        boards.push(BingoBoard::new(current));
-    }
+        let mut current: Vec<Vec<u32>> = Vec::new();
+        let mut boards: Vec<BingoBoard> = Vec::new();
 
-    let draws: Vec<u32> = draws_line
-        .trim_end() // Remove CR LF bytes from string.
-        .split(',')
-        .map(|x| x.parse().unwrap())
-        .collect();
-
-    let n_boards = boards.len();
-    let mut remaining = boards.len();
-
-    for d in draws {
-        for b in &mut boards {
-            if b.is_bingo() {
+        for line in reader.lines() {
+            let line_content = match line {
+                Ok(l) => l,
+                Err(e) => return Err(e.to_string()),
+            };
+            if line_content.is_empty() {
+                if current.len() > 0 {
+                    boards.push(BingoBoard::new(current));
+                }
+                current = Vec::new();
                 continue;
             }
-            b.mark(d);
-            if b.is_bingo() {
-                if remaining == n_boards {
-                    println!("First Board Score: {}", b.score());
-                } else if remaining == 1 {
-                    println!("Last Board Score: {}", b.score());
+
+            current.push(
+                line_content
+                    .split_ascii_whitespace()
+                    .map(|x| x.parse().unwrap())
+                    .collect(),
+            );
+        }
+        if current.len() > 0 {
+            boards.push(BingoBoard::new(current));
+        }
+
+        let draws: Vec<u32> = draws_line
+            .trim_end() // Remove CR LF bytes from string.
+            .split(',')
+            .map(|x| x.parse().unwrap())
+            .collect();
+
+        let n_boards = boards.len();
+        let mut remaining = boards.len();
+
+        let mut first = 0;
+        let mut last = 0;
+
+        for d in draws {
+            for b in &mut boards {
+                if b.is_bingo() {
+                    continue;
                 }
-                remaining -= 1;
+                b.mark(d);
+                if b.is_bingo() {
+                    if remaining == n_boards {
+                        first = b.score();
+                    } else if remaining == 1 {
+                        last = b.score();
+                    }
+                    remaining -= 1;
+                }
             }
         }
+
+        Ok(CompositeSolution(first.to_string(), last.to_string()))
     }
 }
 
