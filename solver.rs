@@ -1,4 +1,5 @@
 mod day01;
+mod day02;
 
 use std::fmt::{Display, Error, Formatter};
 use std::fs::File;
@@ -13,15 +14,25 @@ impl Display for CompositeSolution {
 }
 
 pub trait Solver {
-    fn solve_part_one(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String>;
-    fn solve_part_two(&self,reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String>;
-    fn solve_both(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String>;
+    fn solve_part_one(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String>;
+    fn solve_part_two(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String>;
+    fn solve_both(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String>;
 }
 
 pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
     match day {
         0 => Some(Box::new(STest {})),
         1 => Some(Box::new(day01::Day01Solver {})),
+        2 => Some(Box::new(day02::Day02Solver {})),
         _ => None,
     }
 }
@@ -29,15 +40,24 @@ pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
 struct STest {}
 
 impl Solver for STest {
-    fn solve_part_one(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+    fn solve_part_one(
+        &self,
+        _reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
         Ok("PartOne".to_string())
     }
 
-    fn solve_part_two(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+    fn solve_part_two(
+        &self,
+        _reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
         Err("BugPartTwoOnly".to_string())
     }
 
-    fn solve_both(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String> {
+    fn solve_both(
+        &self,
+        _reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String> {
         Ok(CompositeSolution(
             "PartOne".to_string(),
             "PartTwo".to_string(),

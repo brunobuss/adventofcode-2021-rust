@@ -1,69 +1,84 @@
+use solver::CompositeSolution;
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::{BufRead, BufReader};
 
-fn main() {
-    part_a();
-    part_b();
-}
+pub struct Day02Solver {}
 
-fn part_a() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
-
-    let mut horizontal = 0;
-    let mut depth = 0;
-
-    for line in reader.lines() {
-        let line_content = line.expect("Unable to read line.");
-        let line_elements: Vec<&str> = line_content.split(' ').collect();
-        let command = line_elements[0];
-        let value: i32 = line_elements[1].parse().unwrap();
-
-        match command {
-            "forward" => horizontal += value,
-            "down" => depth += value,
-            "up" => depth -= value,
-            &_ => (),
+impl super::Solver for Day02Solver {
+    fn solve_part_one(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.0),
+            Err(e) => Err(e),
         }
     }
 
-    println!(
-        "Part A solution. Horizontal: {}. Depth: {}. Answer: {}.",
-        horizontal,
-        depth,
-        horizontal * depth
-    );
-}
+    fn solve_part_two(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.1),
+            Err(e) => Err(e),
+        }
+    }
 
-fn part_b() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
+    fn solve_both(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String> {
+        let reader = reader_provider();
 
-    let mut aim = 0;
-    let mut horizontal = 0;
-    let mut depth = 0;
+        let mut part_one_horizontal = 0;
+        let mut part_one_depth = 0;
 
-    for line in reader.lines() {
-        let line_content = line.expect("Unable to read line.");
-        let line_elements: Vec<&str> = line_content.split(' ').collect();
-        let command = line_elements[0];
-        let value: i32 = line_elements[1].parse().unwrap();
+        let mut part_two_aim = 0;
+        let mut part_two_horizontal = 0;
+        let mut part_two_depth = 0;
 
-        match command {
-            "forward" => {
-                horizontal += value;
-                depth += aim * value;
+        for line in reader.lines() {
+            let line_content = match line {
+                Ok(l) => l,
+                Err(e) => return Err(e.to_string()),
+            };
+            let line_elements: Vec<&str> = line_content.split(' ').collect();
+            let command = line_elements[0];
+            let value: i32 = match line_elements[1].parse() {
+                Ok(v) => v,
+                Err(e) => return Err(e.to_string()),
+            };
+
+            match command {
+                "forward" => {
+                    // Part One
+                    part_one_horizontal += value;
+                    // Part Two
+                    part_two_horizontal += value;
+                    part_two_depth += part_two_aim * value;
+                }
+                "down" => {
+                    // Part One
+                    part_one_depth += value;
+                    // Part Two
+                    part_two_aim += value;
+                }
+                "up" => {
+                    // Part One
+                    part_one_depth -= value;
+                    // Part Two
+                    part_two_aim -= value;
+                }
+                &_ => (),
             }
-            "down" => aim += value,
-            "up" => aim -= value,
-            &_ => (),
         }
-    }
 
-    println!(
-        "Part B solution. Horizontal: {}. Depth: {}. Answer: {}.",
-        horizontal,
-        depth,
-        horizontal * depth
-    );
+        let part_one_sol = part_one_horizontal * part_one_depth;
+        let part_two_sol = part_two_horizontal * part_two_depth;
+        Ok(CompositeSolution(
+            part_one_sol.to_string(),
+            part_two_sol.to_string(),
+        ))
+    }
 }
