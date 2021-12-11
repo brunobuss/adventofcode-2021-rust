@@ -3,10 +3,9 @@ use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-pub struct Day01Solver{}
+pub struct Day01Solver {}
 
 impl Day01Solver {
-
     fn line_to_depth(&self, line: &std::io::Result<String>) -> Result<i32, String> {
         match line {
             Ok(v) => match v.parse() {
@@ -15,20 +14,22 @@ impl Day01Solver {
                     let mut error = String::from("Unable to parse line: ");
                     error.push_str(&e.to_string());
                     Err(error)
-                },
+                }
             },
             Err(e) => {
                 let mut error = String::from("Unable to read line: ");
                 error.push_str(&e.to_string());
                 Err(error)
-            },
+            }
         }
     }
-
 }
 
 impl super::Solver for Day01Solver {
-    fn solve_part_one(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+    fn solve_part_one(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
         let reader = reader_provider();
 
         let mut last_depth: i32 = i32::MIN;
@@ -48,12 +49,15 @@ impl super::Solver for Day01Solver {
         Ok(increments.to_string())
     }
 
-    fn solve_part_two(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+    fn solve_part_two(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<String, String> {
         let reader = reader_provider();
 
         let mut deq: VecDeque<i32> = VecDeque::new();
         let mut increments = 0;
-    
+
         for line in reader.lines() {
             let depth: i32 = match self.line_to_depth(&line) {
                 Ok(v) => v,
@@ -75,7 +79,10 @@ impl super::Solver for Day01Solver {
         Ok(increments.to_string())
     }
 
-    fn solve_both(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String> {
+    fn solve_both(
+        &self,
+        reader_provider: &dyn Fn() -> BufReader<File>,
+    ) -> Result<CompositeSolution, String> {
         let part_one = match self.solve_part_one(reader_provider) {
             Ok(v) => v,
             Err(e) => return Err(e),
