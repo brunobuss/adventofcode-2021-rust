@@ -5,12 +5,9 @@ use crate::config::{ChallengeParts, Config};
 use crate::solver;
 
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::BufReader;
 
 pub fn execute(config: &Config) {
-    let file = File::open(&config.input_file).expect("Unable to open input file.");
-    let reader = BufReader::new(file);
-
     let solver = match solver::get_solver_for(&config.day) {
         Some(s) => s,
         None => {
@@ -19,10 +16,15 @@ pub fn execute(config: &Config) {
         }
     };
 
+    let reader_provider = || -> BufReader<File> {
+        let file = File::open(&config.input_file).expect("Unable to open input file.");
+        BufReader::new(file)
+    };
+
     let result: Result<String, String> = match config.part {
-        ChallengeParts::PartOne => solver.solve_part_one(&mut reader.lines()),
-        ChallengeParts::PartTwo => solver.solve_part_two(&mut reader.lines()),
-        ChallengeParts::Both => match solver.solve_both(&mut reader.lines()) {
+        ChallengeParts::PartOne => solver.solve_part_one(&reader_provider),
+        ChallengeParts::PartTwo => solver.solve_part_two(&reader_provider),
+        ChallengeParts::Both => match solver.solve_both(&reader_provider) {
             Ok(v) => Ok(v.to_string()),
             Err(e) => Err(e),
         },

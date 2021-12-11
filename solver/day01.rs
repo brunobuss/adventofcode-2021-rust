@@ -1,7 +1,7 @@
 use solver::CompositeSolution;
 use std::collections::VecDeque;
 use std::fs::File;
-use std::io::{BufReader, Lines};
+use std::io::{BufRead, BufReader};
 
 pub struct Day01Solver{}
 
@@ -28,11 +28,13 @@ impl Day01Solver {
 }
 
 impl super::Solver for Day01Solver {
-    fn solve_part_one(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+    fn solve_part_one(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+        let reader = reader_provider();
+
         let mut last_depth: i32 = i32::MIN;
         let mut increments = 0;
-    
-        for line in input {
+
+        for line in reader.lines() {
             let depth: i32 = match self.line_to_depth(&line) {
                 Ok(v) => v,
                 Err(e) => return Err(e),
@@ -46,11 +48,13 @@ impl super::Solver for Day01Solver {
         Ok(increments.to_string())
     }
 
-    fn solve_part_two(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+    fn solve_part_two(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
+        let reader = reader_provider();
+
         let mut deq: VecDeque<i32> = VecDeque::new();
         let mut increments = 0;
     
-        for line in input {
+        for line in reader.lines() {
             let depth: i32 = match self.line_to_depth(&line) {
                 Ok(v) => v,
                 Err(e) => return Err(e),
@@ -71,12 +75,12 @@ impl super::Solver for Day01Solver {
         Ok(increments.to_string())
     }
 
-    fn solve_both(&self, input: &mut Lines<BufReader<File>>) -> Result<CompositeSolution, String> {
-        let part_one = match self.solve_part_one(input) {
+    fn solve_both(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String> {
+        let part_one = match self.solve_part_one(reader_provider) {
             Ok(v) => v,
             Err(e) => return Err(e),
         };
-        let part_two = match self.solve_part_two(input) {
+        let part_two = match self.solve_part_two(reader_provider) {
             Ok(v) => v,
             Err(e) => return Err(e),
         };

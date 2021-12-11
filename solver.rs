@@ -2,7 +2,7 @@ mod day01;
 
 use std::fmt::{Display, Error, Formatter};
 use std::fs::File;
-use std::io::{BufReader, Lines};
+use std::io::BufReader;
 
 pub struct CompositeSolution(pub String, pub String);
 
@@ -13,9 +13,9 @@ impl Display for CompositeSolution {
 }
 
 pub trait Solver {
-    fn solve_part_one(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String>;
-    fn solve_part_two(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String>;
-    fn solve_both(&self, input: &mut Lines<BufReader<File>>) -> Result<CompositeSolution, String>;
+    fn solve_part_one(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String>;
+    fn solve_part_two(&self,reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String>;
+    fn solve_both(&self, reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String>;
 }
 
 pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
@@ -29,15 +29,15 @@ pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
 struct STest {}
 
 impl Solver for STest {
-    fn solve_part_one(&self, _input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+    fn solve_part_one(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
         Ok("PartOne".to_string())
     }
 
-    fn solve_part_two(&self, _input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+    fn solve_part_two(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<String, String> {
         Err("BugPartTwoOnly".to_string())
     }
 
-    fn solve_both(&self, _input: &mut Lines<BufReader<File>>) -> Result<CompositeSolution, String> {
+    fn solve_both(&self, _reader_provider: &dyn Fn() -> BufReader<File>) -> Result<CompositeSolution, String> {
         Ok(CompositeSolution(
             "PartOne".to_string(),
             "PartTwo".to_string(),
