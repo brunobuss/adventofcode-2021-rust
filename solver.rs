@@ -15,3 +15,29 @@ pub trait Solver {
     fn solve_part_two(&self, input: Lines<BufReader<File>>) -> Result<String, String>;
     fn solve_both(&self, input: Lines<BufReader<File>>) -> Result<CompositeSolution, String>;
 }
+
+pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
+    match day {
+        0 => Some(Box::new(STest {})),
+        _ => None,
+    }
+}
+
+struct STest {}
+
+impl Solver for STest {
+    fn solve_part_one(&self, _input: Lines<BufReader<File>>) -> Result<String, String> {
+        Ok("PartOne".to_string())
+    }
+
+    fn solve_part_two(&self, _input: Lines<BufReader<File>>) -> Result<String, String> {
+        Err("BugPartTwoOnly".to_string())
+    }
+
+    fn solve_both(&self, _input: Lines<BufReader<File>>) -> Result<CompositeSolution, String> {
+        Ok(CompositeSolution(
+            "PartOne".to_string(),
+            "PartTwo".to_string(),
+        ))
+    }
+}
