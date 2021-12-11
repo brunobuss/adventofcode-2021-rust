@@ -26,28 +26,28 @@ fn part_a() {
                         corrupted = true;
                         break;
                     }
-                },
+                }
                 ']' => {
                     if stack.pop_back().unwrap() != '[' {
                         syntax_score += 57;
                         corrupted = true;
                         break;
                     }
-                },
+                }
                 '}' => {
                     if stack.pop_back().unwrap() != '{' {
                         syntax_score += 1197;
                         corrupted = true;
                         break;
                     }
-                },
+                }
                 '>' => {
                     if stack.pop_back().unwrap() != '<' {
                         syntax_score += 25137;
                         corrupted = true;
                         break;
                     }
-                },
+                }
                 _ => (),
             }
         }
@@ -72,5 +72,5 @@ fn part_a() {
     println!("A: {}", syntax_score);
 
     autocomplete_scores.sort();
-    println!("B: {}", autocomplete_scores[autocomplete_scores.len()/2]);
+    println!("B: {}", autocomplete_scores[autocomplete_scores.len() / 2]);
 }
