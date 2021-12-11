@@ -5,26 +5,6 @@ use std::io::{BufRead, BufReader};
 pub struct Day02Solver {}
 
 impl super::Solver for Day02Solver {
-    fn solve_part_one(
-        &self,
-        reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<String, String> {
-        match self.solve_both(reader_provider) {
-            Ok(cs) => Ok(cs.0),
-            Err(e) => Err(e),
-        }
-    }
-
-    fn solve_part_two(
-        &self,
-        reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<String, String> {
-        match self.solve_both(reader_provider) {
-            Ok(cs) => Ok(cs.1),
-            Err(e) => Err(e),
-        }
-    }
-
     fn solve_both(
         &self,
         reader_provider: &dyn Fn() -> BufReader<File>,

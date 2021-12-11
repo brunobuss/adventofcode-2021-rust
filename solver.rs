@@ -20,15 +20,37 @@ pub trait Solver {
     fn solve_part_one(
         &self,
         reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<String, String>;
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.0),
+            Err(e) => Err(e),
+        }
+    }
+
     fn solve_part_two(
         &self,
         reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<String, String>;
+    ) -> Result<String, String> {
+        match self.solve_both(reader_provider) {
+            Ok(cs) => Ok(cs.1),
+            Err(e) => Err(e),
+        }
+    }
+
     fn solve_both(
         &self,
         reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<CompositeSolution, String>;
+    ) -> Result<CompositeSolution, String> {
+        let part_one = match self.solve_part_one(reader_provider) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        let part_two = match self.solve_part_two(reader_provider) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        Ok(CompositeSolution(part_one, part_two))
+    }
 }
 
 pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {

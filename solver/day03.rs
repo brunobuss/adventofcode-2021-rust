@@ -1,4 +1,3 @@
-use solver::CompositeSolution;
 use std::cmp::max;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -93,21 +92,6 @@ impl super::Solver for Day03Solver {
         let scrubber = find_in(&nums, false, 0, len - 1);
         let answer = oxygen * scrubber;
         Ok(answer.to_string())
-    }
-
-    fn solve_both(
-        &self,
-        reader_provider: &dyn Fn() -> BufReader<File>,
-    ) -> Result<CompositeSolution, String> {
-        let part_one = match self.solve_part_one(reader_provider) {
-            Ok(v) => v,
-            Err(e) => return Err(e),
-        };
-        let part_two = match self.solve_part_two(reader_provider) {
-            Ok(v) => v,
-            Err(e) => return Err(e),
-        };
-        Ok(CompositeSolution(part_one, part_two))
     }
 }
 
