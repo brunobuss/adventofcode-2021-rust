@@ -20,9 +20,9 @@ pub fn execute(config: &Config) {
     };
 
     let result: Result<String, String> = match config.part {
-        ChallengeParts::PartOne => solver.solve_part_one(reader.lines()),
-        ChallengeParts::PartTwo => solver.solve_part_two(reader.lines()),
-        ChallengeParts::Both => match solver.solve_both(reader.lines()) {
+        ChallengeParts::PartOne => solver.solve_part_one(&mut reader.lines()),
+        ChallengeParts::PartTwo => solver.solve_part_two(&mut reader.lines()),
+        ChallengeParts::Both => match solver.solve_both(&mut reader.lines()) {
             Ok(v) => Ok(v.to_string()),
             Err(e) => Err(e),
         },

@@ -1,56 +1,85 @@
+use solver::CompositeSolution;
 use std::collections::VecDeque;
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::{BufReader, Lines};
 
-fn main() {
-    part_a();
-    part_b();
+pub struct Day01Solver{}
+
+impl Day01Solver {
+
+    fn line_to_depth(&self, line: &std::io::Result<String>) -> Result<i32, String> {
+        match line {
+            Ok(v) => match v.parse() {
+                Ok(vp) => Ok(vp),
+                Err(e) => {
+                    let mut error = String::from("Unable to parse line: ");
+                    error.push_str(&e.to_string());
+                    Err(error)
+                },
+            },
+            Err(e) => {
+                let mut error = String::from("Unable to read line: ");
+                error.push_str(&e.to_string());
+                Err(error)
+            },
+        }
+    }
+
 }
 
-fn part_a() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
+impl super::Solver for Day01Solver {
+    fn solve_part_one(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+        let mut last_depth: i32 = i32::MIN;
+        let mut increments = 0;
+    
+        for line in input {
+            let depth: i32 = match self.line_to_depth(&line) {
+                Ok(v) => v,
+                Err(e) => return Err(e),
+            };
+            if last_depth != i32::MIN && depth > last_depth {
+                increments = increments + 1;
+            }
+            last_depth = depth;
+        }
 
-    let mut last_depth: Option<i32> = None;
-    let mut increments = 0;
+        Ok(increments.to_string())
+    }
 
-    for line in reader.lines() {
-        let depth: i32 = line.expect("Unable to read line.").parse().unwrap();
-        match last_depth {
-            Some(ld) => {
-                if depth > ld {
+    fn solve_part_two(&self, input: &mut Lines<BufReader<File>>) -> Result<String, String> {
+        let mut deq: VecDeque<i32> = VecDeque::new();
+        let mut increments = 0;
+    
+        for line in input {
+            let depth: i32 = match self.line_to_depth(&line) {
+                Ok(v) => v,
+                Err(e) => return Err(e),
+            };
+            if deq.len() == 3 {
+                // Let say that S_{i} = a_{i} + a_{i+1} + a_{i+2}, if S_{i+1} > S_{i}
+                // then a_{i+1} + a_{i+2} + a_{i+3} > a_{i} + a_{i+1} + a_{i+2}
+                // then a_{i+3} > a_{i}.
+                // So we only need to compare the last element of the new group with
+                // the oldest element of the previous one.
+                if depth > deq.pop_front().unwrap() {
                     increments = increments + 1;
                 }
             }
-            None => (),
+            deq.push_back(depth);
         }
-        last_depth = Some(depth);
+
+        Ok(increments.to_string())
     }
 
-    println!("Part A solution: {}", increments);
-}
-
-fn part_b() {
-    let file = File::open("input.txt").expect("Unable to open input file.");
-    let reader = BufReader::new(file);
-
-    let mut deq: VecDeque<i32> = VecDeque::new();
-    let mut increments = 0;
-
-    for line in reader.lines() {
-        let depth: i32 = line.expect("Unable to read line.").parse().unwrap();
-        if deq.len() == 3 {
-            // Let say that S_{i} = a_{i} + a_{i+1} + a_{i+2}, if S_{i+1} > S_{i}
-            // then a_{i+1} + a_{i+2} + a_{i+3} > a_{i} + a_{i+1} + a_{i+2}
-            // then a_{i+3} > a_{i}.
-            // So we only need to compare the last element of the new group with
-            // the oldest element of the previous one.
-            if depth > deq.pop_front().unwrap() {
-                increments = increments + 1;
-            }
-        }
-        deq.push_back(depth);
+    fn solve_both(&self, input: &mut Lines<BufReader<File>>) -> Result<CompositeSolution, String> {
+        let part_one = match self.solve_part_one(input) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        let part_two = match self.solve_part_two(input) {
+            Ok(v) => v,
+            Err(e) => return Err(e),
+        };
+        Ok(CompositeSolution(part_one, part_two))
     }
-
-    println!("Part B solution: {}", increments);
 }
