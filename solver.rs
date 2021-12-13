@@ -3,6 +3,7 @@ mod day02;
 mod day03;
 mod day04;
 mod day05;
+mod day12;
 
 use std::fmt::{Display, Error, Formatter};
 use std::fs::File;
@@ -61,6 +62,7 @@ pub fn get_solver_for(day: &u8) -> Option<Box<dyn Solver>> {
         3 => Some(Box::new(day03::Day03Solver {})),
         4 => Some(Box::new(day04::Day04Solver {})),
         5 => Some(Box::new(day05::Day05Solver {})),
+        12 => Some(Box::new(day12::Day12Solver {})),
         _ => None,
     }
 }
